@@ -1,0 +1,19 @@
+.splitpane {
+    height: 100%;
+    width: 100%;
+    // cursor: ns-resize;
+    .handle {
+        background-color: black;
+    }
+
+    &.horizontal {
+        display: grid;
+        grid-template-columns: auto auto auto;
+    }
+
+    &.vertical {
+        display: grid;
+        grid-template-rows: auto auto auto;
+    }
+
+}
