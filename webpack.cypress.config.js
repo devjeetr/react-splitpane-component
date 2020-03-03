@@ -5,7 +5,7 @@ const webpack = require("webpack");
 
 
 module.exports = merge(common, {
-  entry: ["./src/js/index.jsx"],
+  entry: ["./src/js/cypress_page.jsx"],
   devServer: {
     stats: {
       colors: true,

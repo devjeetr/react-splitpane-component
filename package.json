@@ -14,7 +14,8 @@
   "scripts": {
     "start": "webpack-dev-server --hot --host 0.0.0.0 --config=./webpack.config.js --mode development",
     "build": "webpack --config webpack.config.js --mode production",
-    "test": "jest --watch"
+    "start-cypress": "cypress open",
+    "test-server": "webpack-dev-server --config webpack.cypress.config.js --mode development --host 0.0.0.0"
   },
   "dependencies": {
     "@emotion/core": "^10.0.22",

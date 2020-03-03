@@ -5,35 +5,11 @@ import styled from "@emotion/styled";
 import { clamp, curry } from "ramda";
 import PropTypes from "prop-types";
 import * as R from "ramda";
-import ResizeObserver from "resize-observer-polyfill";
-import './splitpane.scss';
+import { LayoutDiv } from "./styled";
+import { useResizeObserver } from "./hooks";
+import { parseDimension, getResizeCursorClassName } from "./helpers";
+// @ts-check
 
-const getValue = (value, reference) => {
-  if (typeof value === "number") return value;
-  if (value.endsWith("%")) {
-    return (+value.substring(0, value.length - 1) / 100.0) * reference;
-  }
-  if (value.endsWith("px")) {
-    return +value.substring(0, value.length - 2);
-  }
-
-  throw new Error("Unrecognized value format: " + value);
-};
-
-const LayoutDiv = styled.div(
-  ({ height, width, position, top, left, cursor, pointerEvents }) => ({
-    overflow: "hidden",
-    cursor,
-    height,
-    width,
-    position,
-    top,
-    left,
-    pointerEvents
-  })
-);
-
-const getResizeCursor = type => (type === "h" ? "ew-resize" : "ns-resize");
 
 const offsetProp = R.prop("offset");
 const totalProp = R.prop("total");
@@ -71,17 +47,10 @@ const getOffset = (
   handleThickness,
   type
 ) =>
-  getValue(
+  parseDimension(
     type === "h" ? width : height,
     (type === "h" ? parentWidth : parentHeight) - handleThickness
   );
-
-const useResizeObserver = (ref, onResize) => {
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(onResize);
-    resizeObserver.observe(ref.current);
-  }, []);
-};
 
 const dragStartHandler = curry(
   (
@@ -130,6 +99,7 @@ const SplitPane = ({ children, handleThickness = 3, type = "h" }) => {
     const total = type === "h" ? rect.width : rect.height;
 
     const offsetValue = getOffset(childProps[0], rect, handleThickness, type);
+
     setOffset(offsetValue / total);
     setTotal(total);
   }, []); // need this to be an empty array so useLayoutEffect gets called only once.
@@ -146,13 +116,14 @@ const SplitPane = ({ children, handleThickness = 3, type = "h" }) => {
     setOffset(clamper(newOffset / total));
 
     setPanePointerEvents("none");
-    setCursor(getResizeCursor(type));
+    setCursor(getResizeCursorClassName(type));
   };
 
   const onMouseUp = e => {
     setPanePointerEvents("auto");
     setCursor("auto");
   };
+
   const onDragStart = dragStartHandler({ onMouseMove, onMouseUp });
 
   return (
@@ -171,7 +142,7 @@ const SplitPane = ({ children, handleThickness = 3, type = "h" }) => {
         ref={firstRef}
         css={childProps[0].styles}
         pointerEvents={panePointerEvents}
-        className="split-pane-second-pane"
+        className="split-pane-first-pane"
       >
         {childNodes[0]}
       </LayoutDiv>
@@ -179,7 +150,7 @@ const SplitPane = ({ children, handleThickness = 3, type = "h" }) => {
         className="split-pane-handle"
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.0)",
-          cursor: getResizeCursor(type)
+          cursor: getResizeCursorClassName(type)
         }}
         onMouseDown={onDragStart}
       ></LayoutDiv>
